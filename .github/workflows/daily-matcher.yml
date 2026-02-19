@@ -1,0 +1,54 @@
+name: Daily Cross-Platform Matcher
+
+on:
+  # Run once daily at 23:00 UTC
+  schedule:
+    - cron: '0 23 * * *'
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+concurrency:
+  group: cross-platform-matcher
+  cancel-in-progress: false
+
+jobs:
+  match-markets:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run cross-platform matcher
+        run: python cross_platform_matcher.py
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and push matched data
+        run: |
+          git add matched_markets.csv
+
+          if git diff --staged --quiet; then
+            echo "No new matches to commit"
+          else
+            git commit -m "Cross-platform matches: $(date -u '+%Y-%m-%d') UTC"
+            git push
+          fi
