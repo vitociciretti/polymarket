@@ -59,5 +59,7 @@ jobs:
             echo "No new data to commit"
           else
             git commit -m "Data collection: $(date -u '+%Y-%m-%d %H:%M') UTC"
+            # Pull --rebase to handle any concurrent pushes, then push
+            git pull --rebase origin main
             git push
           fi
