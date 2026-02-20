@@ -18,5 +18,9 @@ env/
 .DS_Store
 Thumbs.db
 
+# Large append-only master files (regenerable from individual snapshots)
+daily_snapshots/all_snapshots.csv
+kalshi_snapshots/all_kalshi_snapshots.csv
+
 # Local settings
 .claude/
