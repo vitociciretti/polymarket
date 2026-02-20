@@ -35,9 +35,9 @@ import logging
 # ---------------------------------------------------------------------------
 BASE_URL = "https://api.elections.kalshi.com/trade-api/v2"
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "kalshi_snapshots")
-RATE_LIMIT_SECONDS = 0.5  # pause between API calls
+RATE_LIMIT_SECONDS = 0.2  # pause between API calls
 REQUEST_TIMEOUT = 30      # seconds
-MAX_ORDERBOOK_MARKETS = 300  # cap order book fetches to avoid very long runs
+MAX_ORDERBOOK_MARKETS = 100  # cap order book fetches to avoid very long runs
 
 # Logging setup
 logging.basicConfig(
@@ -348,6 +348,11 @@ def collect():
     rows = [parse_market(m, event_map) for m in raw_markets]
     df = pd.DataFrame(rows)
     logger.info("Parsed %d markets into DataFrame (%d columns)", len(df), len(df.columns))
+
+    # Filter to markets with volume > 0 (drops ~99% of inactive markets)
+    before = len(df)
+    df = df[pd.to_numeric(df["volume"], errors="coerce").fillna(0) > 0]
+    logger.info("Filtered to markets with volume > 0: %d -> %d", before, len(df))
 
     # Step 4: order books for top markets by volume
     df_sorted = df.dropna(subset=["volume"]).sort_values("volume", ascending=False)
