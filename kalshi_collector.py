@@ -201,8 +201,8 @@ def compute_orderbook_metrics(ob):
     if not ob:
         return {}
 
-    yes_bids = ob.get("yes", [])
-    no_bids = ob.get("no", [])
+    yes_bids = [level for level in (ob.get("yes") or []) if level and len(level) >= 2]
+    no_bids = [level for level in (ob.get("no") or []) if level and len(level) >= 2]
 
     def _depth(levels, n=5):
         """Sum of quantities for top-n levels."""
