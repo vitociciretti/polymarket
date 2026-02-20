@@ -1,4 +1,4 @@
-name: Polymarket + Kalshi Data Collection
+name: Polymarket Data Collection
 
 # Automated data collection workflow
 on:
@@ -40,11 +40,6 @@ jobs:
       - name: Run Polymarket collector
         run: python daily_collector.py
 
-      - name: Run Kalshi collector
-        run: python kalshi_collector.py
-        timeout-minutes: 20
-        continue-on-error: true
-
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
@@ -52,7 +47,7 @@ jobs:
 
       - name: Commit and push data
         run: |
-          git add daily_snapshots/ kalshi_snapshots/
+          git add daily_snapshots/
 
           # Check if there are changes to commit
           if git diff --staged --quiet; then
